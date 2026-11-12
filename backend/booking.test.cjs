@@ -51,7 +51,14 @@ function harness() {
       releaseLock: () => { locked = false; },
     }) },
     SpreadsheetApp: { openById: () => ({ getSheetByName: () => sheet }), flush() {} },
-    Utilities: { getUuid: () => 'fake-uuid-' + rows.length },
+    Utilities: {
+      getUuid: () => 'fake-uuid-' + rows.length,
+      formatDate: (date, timeZone, format) => {
+        assert.equal(timeZone, 'Asia/Kolkata');
+        assert.equal(format, "yyyy-MM-dd'T'HH:mm");
+        return new Date(date.getTime() + 330 * 60 * 1000).toISOString().slice(0, 16);
+      },
+    },
     MailApp: { sendEmail: payload => alerts.push({ mail: payload }) },
     UrlFetchApp: { fetch: (url, options) => {
       alerts.push({ url, body: JSON.parse(options.payload) });
@@ -111,6 +118,20 @@ test('one alert per configured channel after a successful reservation, without s
   assert.ok(!JSON.stringify(alerts).includes('student@example.com'));
   assert.equal(rows[1][8], 'ACCEPTED');
   assert.equal(rows[1][9], 'ACCEPTED');
+});
+
+test('a slot converted to a Sheet datetime stays reserved and its email alert is sent', () => {
+  const { context, rows, alerts } = harness();
+  const first = context.bookAppointment(baseInput);
+  rows[1][3] = new context.Date('2026-11-14T06:50:00Z');
+  assert.ok(!context.getAvailability().slots.some(slot => slot.id === baseInput.slot));
+  assert.equal(context.bookAppointment(baseInput).reference, first.reference);
+  assert.equal(context.bookAppointment({ ...baseInput,
+    request: '12345678-1111-4111-8111-123456789abd',
+  }).stale, true);
+  context.processNotifications_();
+  assert.match(alerts[0].mail.subject, /2026-11-14 12:20–13:00 IST/);
+  assert.equal(rows[1][8], 'ACCEPTED');
 });
 
 test('booking page script parses and exposes the booking flow', () => {

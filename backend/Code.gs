@@ -141,7 +141,17 @@ function bookingRows_(sheet) {
   if (lastRow < 2) return [];
   return sheet.getRange(2, 1, lastRow - 1, HEADERS.length).getValues()
     .map((values, index) => ({ rowNumber: index + 2, values }))
-    .filter(({ values }) => Boolean(values[COL.id]));
+    .filter(({ values }) => Boolean(values[COL.id]))
+    .map(({ rowNumber, values }) => ({ rowNumber, values: normalizeBookingRow_(values) }));
+}
+
+function normalizeBookingRow_(values) {
+  const slot = values[COL.slot];
+  // Sheets can interpret an appended ISO-looking slot as a datetime.
+  values[COL.slot] = slot instanceof Date
+    ? Utilities.formatDate(slot, BOOKING_TIME_ZONE, "yyyy-MM-dd'T'HH:mm")
+    : String(slot).replace(' ', 'T');
+  return values;
 }
 
 function slots_(nowMs) {
@@ -211,7 +221,7 @@ function claimAlert_(sheet, rowNumber, reference, channel) {
     sheet.getRange(rowNumber, COL[channel + 'Lease'] + 1).setValue(lease);
     sheet.getRange(rowNumber, COL[channel] + 1).setValue('SENDING');
     SpreadsheetApp.flush();
-    return { values, lease };
+    return { values: normalizeBookingRow_(values), lease };
   } finally {
     lock.releaseLock();
   }
