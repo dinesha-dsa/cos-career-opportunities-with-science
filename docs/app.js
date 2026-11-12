@@ -193,7 +193,7 @@
   function setBookingLink() {
     const configured = globalThis.ACADEMY_CONFIG?.bookingUrl ?? '';
     const anchor = byId('book-link');
-    const url = /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(configured) ? configured : '';
+    const url = /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec(?:\?authuser=0)?$/.test(configured) ? configured : '';
     anchor.hidden = !url;
     if (url) anchor.href = url;
     byId('book-status').textContent = url ? '' : 'Online booking is being set up. Contact COS about a counselling slot.';
