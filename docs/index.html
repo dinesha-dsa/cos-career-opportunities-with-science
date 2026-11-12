@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore careers, find official entrance exam forms, and book counselling with COS-Career Opportunities with Science.">
+  <title>Career &amp; Admissions | COS-Career Opportunities with Science</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="config.js" defer></script>
+  <script src="admissions.js" defer></script>
+  <script src="career.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="#top" aria-label="COS-Career Opportunities with Science"><span class="brand-mark" aria-hidden="true">C</span><strong>COS-Career Opportunities<br>with Science</strong></a>
+      <nav aria-label="Main navigation">
+        <a href="#careers">Careers</a><a href="#exams">Exams</a><a href="#cutoffs">Cutoffs</a><a class="nav-book" href="#counselling">Counselling <span aria-hidden="true">↗</span></a>
+      </nav>
+    </div>
+  </header>
+  <main id="main" class="shell">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">CLASS 12 SCIENCE · 2027 ADMISSIONS</p>
+        <h1 id="hero-title">What’s next<br>after <em>Class 12?</em></h1>
+        <p>Explore careers, find the right entrance exams, and get help choosing colleges.</p>
+        <div class="actions"><a class="button primary" href="#exams" data-open-exams>See open applications <span aria-hidden="true">↗</span></a><a class="button secondary" href="#career-quiz" data-quiz>Take the career quiz</a></div>
+      </div>
+      <aside class="session" aria-labelledby="session-title">
+        <span class="session-label">FORM-FILLING SESSION</span>
+        <p class="session-date">13 <span>NOV<br>2026</span></p>
+        <h2 id="session-title">Bring these to the session</h2>
+        <ul class="session-list"><li>Class 10 marksheet and Class 12 school details</li><li>Photo, scanned signature and Aadhaar or accepted ID</li><li>Your own email, mobile and a payment method</li></ul>
+        <a href="#documents">Full document checklist <span aria-hidden="true">↘</span></a>
+      </aside>
+    </section>
+
+    <section class="section" id="careers" aria-labelledby="careers-title">
+      <div class="section-heading"><div><p class="eyebrow">CAREER PATHS</p><h2 id="careers-title">Find your direction</h2></div><a class="text-link" href="#career-quiz" data-quiz>Help me choose <span aria-hidden="true">↗</span></a></div>
+      <div class="career-grid" id="career-grid"></div>
+      <div id="career-quiz" class="quiz-panel" hidden></div>
+    </section>
+
+    <section class="section" id="exams" aria-labelledby="exams-title">
+      <div class="section-heading"><div><p class="eyebrow">ENTRANCE EXAMS</p><h2 id="exams-title" tabindex="-1">Find your next application</h2></div><p id="checked-date" class="section-note"></p></div>
+      <div class="filters" aria-label="Filter entrance exams">
+        <label class="search-label">Search exams<input type="search" id="exam-search" placeholder="JEE, NEET, NATA, IMU…"></label>
+        <label>Career path<select id="exam-track"><option value="">All career paths</option></select></label>
+        <label>Application status<select id="exam-status"><option value="">All statuses</option><option>Open</option><option>Upcoming</option><option>Watch</option><option>Closed</option></select></label>
+        <button id="reset-filters" class="button light" type="button">Clear filters</button>
+      </div>
+      <p class="count" id="exam-count" role="status"></p>
+      <div class="exam-grid" id="exam-grid"></div>
+      <details class="checklist" id="documents"><summary>Documents for form-filling and counselling</summary>
+        <div class="checklist-grid">
+          <div><h3>Bring for form-filling</h3><ul><li>Class 10 marksheet or certificate. Check spelling and date of birth against your ID.</li><li>Class 12 board, school, subject and roll or registration details if issued. Bring the marksheet if you have already passed.</li><li>Recent photo, scanned signature, and Aadhaar or another accepted ID. Bring a phone for OTPs and live photo capture.</li><li>Category, EWS, OBC-NCL, PwD or UDID documents where applicable. Use the current bulletin for accepted formats and validity dates.</li></ul></div>
+          <div><h3>Keep ready for counselling</h3><ul><li>Scorecard, Class 10 and 12 records, school leaving certificate, and domicile or nationality evidence when required.</li><li>Maharashtra candidates should check DigiLocker, APAAR and state quota requirements. Reserved category claims may require caste validity or other state certificates.</li><li>Marine applicants should check eyesight, colour vision, medical fitness, passport and DNS sponsorship requirements for their programme.</li><li>Download the confirmation page and fee receipt for every completed application. Enter OTPs and payment details yourself.</li></ul></div>
+        </div>
+      </details>
+    </section>
+
+    <section class="section" id="cutoffs" aria-labelledby="cutoffs-title">
+      <div class="section-heading"><div><p class="eyebrow">COLLEGE SHORTLIST</p><h2 id="cutoffs-title">Compare previous cutoffs</h2></div></div>
+      <p class="section-note cutoff-intro">Compare the same course, category, quota, seat pool and round. Use past closing ranks, percentiles or scores to build reach, match and backup choices.</p>
+      <div class="filters cutoff-filters"><label>Career path<select id="cutoff-track"><option value="">All career paths</option></select></label></div>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Historical admissions benchmarks">
+        <table><thead><tr><th scope="col">College or portal</th><th scope="col">Measure</th><th scope="col">Cutoff</th><th scope="col">Year, round and seat type</th><th scope="col">Source</th></tr></thead><tbody id="cutoff-rows"></tbody></table>
+      </div>
+    </section>
+
+    <section class="section counselling" id="counselling" aria-labelledby="counselling-title">
+      <div><p class="eyebrow">ONE-TO-ONE COUNSELLING</p><h2 id="counselling-title">Talk through your choices</h2><p>Meet online with a COS counsellor to discuss exams, courses or a college shortlist. Your counsellor will send a Google Meet invite after your slot is booked.</p></div>
+      <div class="counselling-card"><h3>Saturdays &amp; Sundays</h3><p>11:00 am–2:00 pm and 4:00–7:00 pm IST</p><p>40 minutes per student</p><a id="book-link" class="button primary" target="_blank" rel="noopener" hidden>See available slots <span aria-hidden="true">↗</span></a><p id="book-status" class="booking-status" role="status"></p></div>
+    </section>
+  </main>
+  <footer><div class="shell footer-inner"><span>COS-Career Opportunities with Science</span><a href="#top">Back to top ↑</a></div></footer>
+</body>
+</html>

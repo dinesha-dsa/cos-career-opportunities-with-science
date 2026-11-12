@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <base target="_top">
+  <style>
+    :root{color-scheme:light;font-family:system-ui,sans-serif;color:#15342c;background:#eef3ed}
+    *{box-sizing:border-box}
+    body{margin:0}
+    main{width:min(100% - 2rem,43rem);margin:3.5rem auto;padding:clamp(1.25rem,5vw,2.75rem);background:#fff;border:1px solid #d7e2d8;border-radius:1.25rem}
+    .academy{font-size:.86rem;font-weight:750;color:#28604f;margin-top:0}
+    h1{font-size:clamp(2rem,7vw,3rem);line-height:1.08;margin:.35rem 0 1rem;letter-spacing:-.035em}
+    p{line-height:1.55}
+    .hours{border-left:4px solid #79ab8a;padding:.75rem 1rem;background:#eff7ef}
+    form{display:grid;gap:1rem;margin:1.5rem 0 0}
+    .field{display:grid;gap:.35rem;font-weight:650}
+    input,select,button{font:inherit}
+    input:not([type=checkbox]),select{width:100%;min-height:2.9rem;padding:.6rem .7rem;border:1px solid #8da396;border-radius:.45rem;background:white;color:inherit}
+    :focus-visible{outline:3px solid #226b50;outline-offset:3px}
+    .consent{display:flex;gap:.65rem;align-items:flex-start;font-size:.93rem;line-height:1.45}
+    .consent input{width:1.15rem;height:1.15rem;flex:none;margin:.12rem 0 0}
+    button{min-height:2.8rem;border:0;border-radius:.5rem;background:#164b3c;color:white;font-weight:700;padding:.65rem 1rem;cursor:pointer}
+    button:disabled,select:disabled{opacity:.55;cursor:default}
+    .secondary{background:#e7f1e8;color:#194b3e}
+    .actions{display:flex;flex-wrap:wrap;gap:.5rem}
+    #notice{min-height:1.55em;margin:1rem 0 0}
+    .error{color:#a12524}
+    .confirmed{margin-top:1.4rem;background:#e7f5eb;padding:1.1rem;border-radius:.65rem}
+    .confirmed h2{margin:0}
+    .ref{overflow-wrap:anywhere}
+    .website{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+    [hidden]{display:none}
+  </style>
+</head>
+<body>
+  <main>
+    <p class="academy">COS-Career Opportunities with Science</p>
+    <h1>Book a counselling session</h1>
+    <p>Choose a 40-minute online appointment. Your COS counsellor will email your Google Meet invite.</p>
+    <p class="hours">Saturday and Sunday<br>11:00 am–2:00 pm and 4:00–7:00 pm IST</p>
+    <form id="booking">
+      <label class="field">Date and time (IST)
+        <select id="slot" required disabled><option value="">Loading times…</option></select>
+      </label>
+      <label class="field">Student name
+        <input id="student" maxlength="80" autocomplete="name" required>
+      </label>
+      <label class="field">Email for the Meet invite
+        <input id="email" maxlength="254" autocomplete="email" type="email" required>
+      </label>
+      <label class="field">Career interest (optional)
+        <select id="interest">
+          <option value="">Choose a field</option>
+          <option>Engineering and technology</option>
+          <option>Architecture and planning</option>
+          <option>Medicine and allied health</option>
+          <option>Marine and nautical studies</option>
+          <option>Pure science and research</option>
+          <option>Design</option>
+          <option>Still exploring</option>
+        </select>
+      </label>
+      <label class="website" aria-hidden="true">Website
+        <input id="website" tabindex="-1" autocomplete="off">
+      </label>
+      <label class="consent">
+        <input id="consent" type="checkbox" required>
+        <span>I agree that COS can store these details for counselling and contact me about my session. If I am under 18, I am booking with my parent or guardian's permission.</span>
+      </label>
+      <div class="actions">
+        <button id="submit" type="submit" disabled>Book session</button>
+        <button id="refresh" type="button" class="secondary">Refresh times</button>
+      </div>
+    </form>
+    <p id="notice" role="status" aria-live="polite"></p>
+    <section id="confirmed" class="confirmed" tabindex="-1" hidden>
+      <h2>Session booked</h2>
+      <p id="confirmed-time"></p>
+      <p class="ref">Booking reference <strong id="reference"></strong></p>
+      <p>Watch for a Google Meet invitation in the email account you entered.</p>
+    </section>
+  </main>
+  <script>
+    const form = document.getElementById('booking');
+    const slot = document.getElementById('slot');
+    const submit = document.getElementById('submit');
+    const refresh = document.getElementById('refresh');
+    const notice = document.getElementById('notice');
+    const dateFormat = new Intl.DateTimeFormat('en-IN', {
+      weekday: 'long', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC',
+    });
+    let available = new Map();
+    let previousPayload = '';
+    let request = '';
+
+    function message(text, error = false) {
+      notice.textContent = text;
+      notice.classList.toggle('error', error);
+    }
+
+    function label(entry) {
+      const date = dateFormat.format(new Date(entry.date + 'T00:00:00Z'));
+      return date + ' · ' + entry.start + '–' + entry.end + ' IST';
+    }
+
+    function loadSlots(keepMessage = false) {
+      const selected = slot.value;
+      slot.disabled = true;
+      submit.disabled = true;
+      refresh.disabled = true;
+      if (!keepMessage) message('Checking available times…');
+      const failed = () => {
+        slot.replaceChildren(new Option('Times unavailable', ''));
+        refresh.disabled = false;
+        message('Could not load appointment times. Try refreshing.', true);
+      };
+      google.script.run.withFailureHandler(failed).withSuccessHandler(result => {
+        refresh.disabled = false;
+        if (!result.ok) return failed();
+        available = new Map(result.slots.map(entry => [entry.id, entry]));
+        slot.replaceChildren(new Option(result.slots.length ? 'Choose a time' : 'No times available', ''));
+        for (const entry of result.slots) slot.add(new Option(label(entry), entry.id));
+        if (available.has(selected)) slot.value = selected;
+        slot.disabled = result.slots.length === 0;
+        submit.disabled = slot.disabled;
+        if (!keepMessage) message(result.slots.length ? '' : 'The booking window currently has no available times.');
+      }).getAvailability();
+    }
+
+    refresh.addEventListener('click', () => loadSlots());
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const entry = available.get(slot.value);
+      if (!entry) return;
+      const payload = {
+        slot: entry.id,
+        name: document.getElementById('student').value.trim(),
+        email: document.getElementById('email').value.trim().toLowerCase(),
+        interest: document.getElementById('interest').value,
+        consent: document.getElementById('consent').checked,
+        website: document.getElementById('website').value,
+      };
+      const key = JSON.stringify(payload);
+      if (key !== previousPayload) {
+        previousPayload = key;
+        request = crypto.randomUUID();
+      }
+      const controls = [...form.elements];
+      const disabled = controls.map(control => control.disabled);
+      controls.forEach(control => control.disabled = true);
+      const restore = () => controls.forEach((control, index) => control.disabled = disabled[index]);
+      message('Reserving your time…');
+      google.script.run.withFailureHandler(() => {
+        restore();
+        message('Booking could not be verified. Retry with the same details.', true);
+      }).withSuccessHandler(result => {
+        if (!result.ok) {
+          restore();
+          message(result.message, true);
+          if (result.stale) loadSlots(true);
+          return;
+        }
+        form.reset();
+        form.hidden = true;
+        message('');
+        document.getElementById('confirmed-time').textContent = label(entry);
+        document.getElementById('reference').textContent = result.reference;
+        const confirmed = document.getElementById('confirmed');
+        confirmed.hidden = false;
+        confirmed.focus();
+      }).bookAppointment({ ...payload, request });
+    });
+    loadSlots();
+  </script>
+</body>
+</html>
